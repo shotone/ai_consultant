@@ -30,6 +30,15 @@ spring:
         jwt:
           issuer-uri: http://localhost:8180/realms/ipove-platform
 
+ipove:
+  notifications:
+    email:
+      enabled: false
+      provider: console
+    sms:
+      enabled: false
+      provider: console
+
 logging:
   level:
     ai.ipove: DEBUG

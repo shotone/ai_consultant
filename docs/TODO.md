@@ -150,8 +150,8 @@ public abstract class BaseEntity {
   - `GET /api/users/:id/public`
   - `POST /api/users/me/become-seller` (buyer → seller role)
 - [x] Keycloak event listener — user created/updated events sync to DB (JWT auto-sync on first API call)
-- [ ] Email verification flow (Keycloak + Email provider)
-- [ ] SMS OTP verification (Keycloak + SMS provider)
+- [x] Email verification flow (Keycloak + Email provider) — configurable via ipove.notifications.email
+- [x] SMS OTP verification (Keycloak + SMS provider) — configurable via ipove.notifications.sms
 - [x] Email provider: `EmailService` interface + `SendGridEmailProvider` + `ConsoleEmailProvider`
 - [x] SMS provider: `SmsService` interface + `TwilioSmsProvider` + `ConsoleSmsProvider`
 
@@ -164,7 +164,8 @@ public abstract class BaseEntity {
 - [x] `UserService` unit tests (register, getProfile, update, softDelete)
 - [x] `UserController` integration tests (MockMvc)
 - [ ] Keycloak integration test (Testcontainers + Keycloak container)
-- [ ] Email/SMS provider unit tests (mock)
+- [x] Email/SMS provider unit tests
+- [x] NotificationProperties config unit tests
 
 ### Frontend
 - [x] Login / Register pages (Keycloak redirect)

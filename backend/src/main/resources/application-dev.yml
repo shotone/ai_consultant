@@ -26,6 +26,17 @@ spring:
           issuer-uri: http://localhost:8180/realms/ipove-platform
           jwk-set-uri: http://localhost:8180/realms/ipove-platform/protocol/openid-connect/certs
 
+ipove:
+  notifications:
+    email:
+      enabled: true
+      provider: console
+      from-address: noreply@ipove.ai
+      from-name: ipove.ai
+    sms:
+      enabled: true
+      provider: console
+
 logging:
   level:
     ai.ipove: DEBUG
