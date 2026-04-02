@@ -75,55 +75,55 @@ public abstract class BaseEntity {
 > **მიზანი:** პროექტის skeleton, dev გარემო, CI/CD — კოდის ერთი ხაზიც არ იწერება ფუნდამენტის გარეშე.
 
 ### Backend Setup
-- [ ] Spring Boot 3.x პროექტის ინიციალიზაცია (Maven/Gradle)
-- [ ] Java 21 კონფიგურაცია
-- [ ] მულტი-მოდულ სტრუქტურა: `core`, `api`, `ai-gateway`, `notification`
-- [ ] `BaseEntity` აბსტრაქტული კლასი (id, tenant_id, created_at, updated_at, deleted_at)
-- [ ] `SoftDeleteRepository` — custom JPA repository soft delete-ით
-- [ ] Spring Auditing კონფიგურაცია (`@EnableJpaAuditing`)
-- [ ] Spring Profiles: `application.yml`, `application-dev.yml`, `application-staging.yml`, `application-prod.yml`, `application-test.yml`
-- [ ] Global Exception Handler (`@ControllerAdvice`)
-- [ ] API Response wrapper (standardized JSON responses)
-- [ ] Logging კონფიგურაცია (SLF4J + Logback, structured JSON logs)
+- [x] Spring Boot 3.x პროექტის ინიციალიზაცია (Maven/Gradle)
+- [x] Java 21 კონფიგურაცია
+- [x] მულტი-მოდულ სტრუქტურა: `core`, `api`, `ai-gateway`, `notification`
+- [x] `BaseEntity` აბსტრაქტული კლასი (id, tenant_id, created_at, updated_at, deleted_at)
+- [x] `SoftDeleteRepository` — custom JPA repository soft delete-ით
+- [x] Spring Auditing კონფიგურაცია (`@EnableJpaAuditing`)
+- [x] Spring Profiles: `application.yml`, `application-dev.yml`, `application-staging.yml`, `application-prod.yml`, `application-test.yml`
+- [x] Global Exception Handler (`@ControllerAdvice`)
+- [x] API Response wrapper (standardized JSON responses)
+- [x] Logging კონფიგურაცია (SLF4J + Logback, structured JSON logs)
 
 ### Database Setup
-- [ ] PostgreSQL + pgvector extension setup
-- [ ] Liquibase ინტეგრაცია და საწყისი changelog
-- [ ] `tenants` ცხრილის მიგრაცია (Liquibase)
-- [ ] `users` ცხრილის მიგრაცია
-- [ ] Seed data dev გარემოსთვის (Liquibase context: dev)
+- [x] PostgreSQL + pgvector extension setup
+- [x] Liquibase ინტეგრაცია და საწყისი changelog
+- [x] `tenants` ცხრილის მიგრაცია (Liquibase)
+- [x] `users` ცხრილის მიგრაცია
+- [x] Seed data dev გარემოსთვის (Liquibase context: dev)
 
 ### Keycloak Setup
-- [ ] Keycloak Docker image კონფიგურაცია
-- [ ] `ipove-platform` realm-ის შექმნა
-- [ ] Roles: `buyer`, `seller`, `admin`
+- [x] Keycloak Docker image კონფიგურაცია
+- [x] `ipove-platform` realm-ის შექმნა
+- [x] Roles: `buyer`, `seller`, `admin`
 - [ ] Social Login setup (Google) — dev გარემოში
-- [ ] Spring Security OAuth2 Resource Server კონფიგურაცია
-- [ ] JWT validation და role mapping
+- [x] Spring Security OAuth2 Resource Server კონფიგურაცია
+- [x] JWT validation და role mapping
 
 ### Infrastructure
-- [ ] Docker Compose: PostgreSQL, Redis, RabbitMQ, Keycloak, Elasticsearch
-- [ ] Redis კონფიგურაცია (Spring Cache)
-- [ ] RabbitMQ კონფიგურაცია (exchanges, queues)
-- [ ] GitHub repository + branch strategy (main, develop, feature/*)
-- [ ] GitHub Actions CI pipeline (build, test, lint)
-- [ ] `.env.example` ფაილი
+- [x] Docker Compose: PostgreSQL, Redis, RabbitMQ, Keycloak, Elasticsearch
+- [x] Redis კონფიგურაცია (Spring Cache)
+- [x] RabbitMQ კონფიგურაცია (exchanges, queues)
+- [x] GitHub repository + branch strategy (main, develop, feature/*)
+- [x] GitHub Actions CI pipeline (build, test, lint)
+- [x] `.env.example` ფაილი
 
 ### ტესტების ფუნდამენტი
-- [ ] JUnit 5 + Mockito dependency setup
-- [ ] Testcontainers setup (PostgreSQL, Redis, RabbitMQ)
-- [ ] `@SpringBootTest` base test class
-- [ ] `BaseEntity` unit tests (soft delete, audit fields)
-- [ ] CI-ში test coverage report (JaCoCo)
+- [x] JUnit 5 + Mockito dependency setup
+- [x] Testcontainers setup (PostgreSQL, Redis, RabbitMQ)
+- [x] `@SpringBootTest` base test class
+- [x] `BaseEntity` unit tests (soft delete, audit fields)
+- [x] CI-ში test coverage report (JaCoCo)
 
 ### Frontend Setup
-- [ ] Next.js 15 პროექტის ინიციალიზაცია
-- [ ] TypeScript + Tailwind CSS
-- [ ] Project structure: `app/`, `components/`, `lib/`, `hooks/`
-- [ ] Keycloak JS adapter ინტეგრაცია
-- [ ] API client setup (fetch wrapper with auth headers)
-- [ ] Vitest + React Testing Library setup
-- [ ] ESLint + Prettier კონფიგურაცია
+- [x] Next.js 15 პროექტის ინიციალიზაცია
+- [x] TypeScript + Tailwind CSS
+- [x] Project structure: `app/`, `components/`, `lib/`, `hooks/`
+- [x] Keycloak JS adapter ინტეგრაცია
+- [x] API client setup (fetch wrapper with auth headers)
+- [x] Vitest + React Testing Library setup
+- [x] ESLint + Prettier კონფიგურაცია
 
 **Sprint 0 Definition of Done:**
 - `docker-compose up` ბრძანებით მთლიანი dev გარემო ეშვება

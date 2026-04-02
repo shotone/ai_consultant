@@ -20,7 +20,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="plan" type="varchar(20)" defaultValue="starter"/>
-            <column name="config" type="jsonb" defaultValue="'{}'"/>
+            <column name="config" type="jsonb" defaultValueComputed="'{}'::jsonb"/>
             <column name="webhook_url" type="text"/>
             <column name="monthly_quota" type="int" defaultValueNumeric="10000"/>
             <column name="is_active" type="boolean" defaultValueBoolean="true"/>

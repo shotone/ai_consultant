@@ -7,5 +7,6 @@
 
     <include file="changes/001-create-tenants.xml" relativeToChangelogFile="true"/>
     <include file="changes/002-create-users.xml" relativeToChangelogFile="true"/>
+    <include file="changes/003-create-seller-profiles.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

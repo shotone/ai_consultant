@@ -1,7 +1,9 @@
 spring:
   datasource:
-    url: jdbc:tc:postgresql:16:///ipove_test
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:postgresql://localhost:5432/ipove_dev
+    username: ipove
+    password: ipove_secret
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -19,8 +21,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: guest
-    password: guest
+    username: ipove
+    password: ipove_secret
 
   security:
     oauth2:

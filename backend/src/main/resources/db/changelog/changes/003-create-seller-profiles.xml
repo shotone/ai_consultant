@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="003-create-seller-profiles" author="ipove">
+        <createTable tableName="seller_profiles">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tenant_id" type="uuid">
+                <constraints nullable="false"
+                             foreignKeyName="fk_seller_profiles_tenant"
+                             references="tenants(id)"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" unique="true"
+                             foreignKeyName="fk_seller_profiles_user"
+                             references="users(id)"/>
+            </column>
+            <column name="business_name" type="varchar(255)"/>
+            <column name="description" type="text"/>
+            <column name="rating" type="decimal(3,2)" defaultValueNumeric="0.00"/>
+            <column name="total_sales" type="int" defaultValueNumeric="0"/>
+            <column name="is_premium" type="boolean" defaultValueBoolean="false"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="deleted_at" type="timestamptz"/>
+        </createTable>
+
+        <createIndex tableName="seller_profiles" indexName="idx_seller_profiles_tenant">
+            <column name="tenant_id"/>
+        </createIndex>
+
+        <createIndex tableName="seller_profiles" indexName="idx_seller_profiles_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
