@@ -84,9 +84,9 @@ function ProfileContent() {
     <div className="max-w-lg mx-auto mt-12 p-6">
       <h1 className="text-2xl font-bold mb-6">ჩემი პროფილი</h1>
 
-      <div className="space-y-4">
+      <div className="space-y-4 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl p-6">
         <div>
-          <label className="block text-sm text-gray-500">Email</label>
+          <label className="block text-sm text-[var(--muted)]">Email</label>
           <p className="text-lg">{profile.email}</p>
         </div>
 

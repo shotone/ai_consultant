@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 
 export default function Home() {
@@ -9,17 +10,23 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-500">იტვირთება...</div>
+        <div className="text-lg text-[var(--muted)]">იტვირთება...</div>
       </div>
     );
   }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-8 p-8">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-2">ipove.ai</h1>
-        <p className="text-xl text-gray-500">ვინც ეძებს — პოულობს</p>
-        <p className="text-sm text-gray-400 mt-2">
+        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          ipove.ai
+        </h1>
+        <p className="text-xl text-[var(--muted)]">ვინც ეძებს — პოულობს</p>
+        <p className="text-sm text-[var(--muted)] mt-2 opacity-70">
           AI გამყიდველი კონსულტანტი — შენი პირადი გაყიდვების აგენტი
         </p>
       </div>
@@ -30,7 +37,7 @@ export default function Home() {
             <p className="text-lg">
               გამარჯობა, <span className="font-semibold">{user.name}</span>
             </p>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <p className="text-sm text-[var(--muted)]">{user.email}</p>
           </div>
           <div className="flex gap-3">
             <Link
@@ -41,7 +48,7 @@ export default function Home() {
             </Link>
             <button
               onClick={logout}
-              className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              className="px-6 py-2 border border-[var(--card-border)] rounded-lg hover:bg-[var(--muted-bg)] transition"
             >
               გასვლა
             </button>
@@ -57,7 +64,7 @@ export default function Home() {
           </button>
           <button
             onClick={register}
-            className="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition"
+            className="px-6 py-2 border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950 transition"
           >
             რეგისტრაცია
           </button>

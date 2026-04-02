@@ -346,6 +346,131 @@ input[type="checkbox"] {
 }
 
 /* ============================================
+   DARK MODE (system preference)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    html.login-pf,
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1a1035 50%, #0c0a1a 100%) !important;
+    }
+
+    .card-pf,
+    #kc-form,
+    .login-pf-page .card-pf {
+        background: #1e293b !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .login-pf-page .card-pf::after {
+        color: #94a3b8 !important;
+    }
+
+    label,
+    .control-label {
+        color: #cbd5e1 !important;
+    }
+
+    .form-control,
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    select {
+        background: #0f172a !important;
+        border-color: #475569 !important;
+        color: #f1f5f9 !important;
+    }
+
+    .form-control::placeholder,
+    input::placeholder {
+        color: #64748b !important;
+    }
+
+    .form-control:focus,
+    input:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    }
+
+    .btn-default {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+    }
+
+    .btn-default:hover {
+        background: #334155 !important;
+    }
+
+    .zocial {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+    }
+
+    .zocial:hover {
+        background: #334155 !important;
+    }
+
+    #kc-social-providers {
+        border-top-color: #334155 !important;
+    }
+
+    #kc-social-providers::before {
+        background: #1e293b;
+        color: #64748b;
+    }
+
+    a,
+    .login-pf a {
+        color: #60a5fa !important;
+    }
+
+    a:hover {
+        color: #93c5fd !important;
+    }
+
+    #kc-registration span,
+    .kc-registration-info {
+        color: #94a3b8;
+    }
+
+    .checkbox label,
+    .login-pf-settings label {
+        color: #94a3b8 !important;
+    }
+
+    .alert-success {
+        background: #052e16 !important;
+        color: #86efac !important;
+        border-color: #166534 !important;
+    }
+
+    .alert-warning {
+        background: #451a03 !important;
+        color: #fde68a !important;
+        border-color: #92400e !important;
+    }
+
+    .alert-error,
+    .alert-danger {
+        background: #450a0a !important;
+        color: #fca5a5 !important;
+        border-color: #991b1b !important;
+    }
+
+    .alert-info {
+        background: #172554 !important;
+        color: #93c5fd !important;
+        border-color: #1e40af !important;
+    }
+
+    .login-pf-settings a {
+        color: #60a5fa !important;
+    }
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
