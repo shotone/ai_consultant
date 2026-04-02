@@ -54,6 +54,7 @@ services:
       - "8180:8180"
     volumes:
       - ./keycloak/ipove-realm.json:/opt/keycloak/data/import/ipove-realm.json:ro
+      - ./keycloak/themes/ipove:/opt/keycloak/themes/ipove:ro
     depends_on:
       postgres:
         condition: service_healthy

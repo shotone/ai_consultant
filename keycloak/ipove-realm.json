@@ -1,6 +1,7 @@
 {
   "realm": "ipove-platform",
   "enabled": true,
+  "loginTheme": "ipove",
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
   "loginWithEmailAllowed": true,
