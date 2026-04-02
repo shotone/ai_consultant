@@ -163,7 +163,7 @@ public abstract class BaseEntity {
 ### ტესტები
 - [x] `UserService` unit tests (register, getProfile, update, softDelete)
 - [x] `UserController` integration tests (MockMvc)
-- [ ] Keycloak integration test (Testcontainers + Keycloak container)
+- [x] Keycloak integration test (Testcontainers + Keycloak container) — @Tag("integration"), runs via `./gradlew integrationTest`
 - [x] Email/SMS provider unit tests
 - [x] NotificationProperties config unit tests
 
