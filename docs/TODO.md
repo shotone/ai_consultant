@@ -140,38 +140,47 @@ public abstract class BaseEntity {
 > **მიზანი:** მომხმარებელს შეუძლია რეგისტრაცია, ავტორიზაცია და პროფილის მართვა.
 
 ### Backend
-- [ ] `User` entity (extends BaseEntity, soft delete)
-- [ ] `SellerProfile` entity (extends BaseEntity)
-- [ ] `UserRepository`, `SellerProfileRepository` (with soft delete)
-- [ ] `UserService` — CRUD + Keycloak sync
-- [ ] `UserController` — REST endpoints
+- [x] `User` entity (extends BaseEntity, soft delete)
+- [x] `SellerProfile` entity (extends BaseEntity)
+- [x] `UserRepository`, `SellerProfileRepository` (with soft delete)
+- [x] `UserService` — CRUD + Keycloak sync
+- [x] `UserController` — REST endpoints
   - `GET /api/users/me`
   - `PATCH /api/users/me`
   - `GET /api/users/:id/public`
   - `POST /api/users/me/become-seller` (buyer → seller role)
-- [ ] Keycloak event listener — user created/updated events sync to DB
+- [x] Keycloak event listener — user created/updated events sync to DB (JWT auto-sync on first API call)
 - [ ] Email verification flow (Keycloak + Email provider)
 - [ ] SMS OTP verification (Keycloak + SMS provider)
-- [ ] Email provider: `EmailService` interface + `SendGridEmailProvider` + `ConsoleEmailProvider`
-- [ ] SMS provider: `SmsService` interface + `TwilioSmsProvider` + `ConsoleSmsProvider`
+- [x] Email provider: `EmailService` interface + `SendGridEmailProvider` + `ConsoleEmailProvider`
+- [x] SMS provider: `SmsService` interface + `TwilioSmsProvider` + `ConsoleSmsProvider`
 
 ### Liquibase
-- [ ] `users` ცხრილის სრული მიგრაცია (with deleted_at)
-- [ ] `seller_profiles` ცხრილის მიგრაცია
-- [ ] Indexes: email, tenant_id
+- [x] `users` ცხრილის სრული მიგრაცია (with deleted_at)
+- [x] `seller_profiles` ცხრილის მიგრაცია
+- [x] Indexes: email, tenant_id
 
 ### ტესტები
-- [ ] `UserService` unit tests (register, getProfile, update, softDelete)
-- [ ] `UserController` integration tests (MockMvc)
+- [x] `UserService` unit tests (register, getProfile, update, softDelete)
+- [x] `UserController` integration tests (MockMvc)
 - [ ] Keycloak integration test (Testcontainers + Keycloak container)
 - [ ] Email/SMS provider unit tests (mock)
 
 ### Frontend
-- [ ] Login / Register pages (Keycloak redirect)
-- [ ] User profile page
-- [ ] Role selection: "მყიდველი ვარ" / "გამყიდველი ვარ"
-- [ ] Protected routes (auth guard)
-- [ ] Frontend unit tests (auth flow, profile page)
+- [x] Login / Register pages (Keycloak redirect)
+- [x] User profile page
+- [x] Role selection: "მყიდველი ვარ" / "გამყიდველი ვარ" (become-seller page)
+- [x] Protected routes (auth guard)
+- [x] Frontend unit tests (auth flow, profile page)
+
+### დამატებითი (არ იყო გეგმაში, მაგრამ გაკეთდა)
+- [x] Keycloak Custom Theme (ipove.ai ბრენდინგი login/register გვერდებზე)
+- [x] Light / Dark / System theme (ThemeProvider + ThemeToggle)
+- [x] 3-ენოვანი სისტემა: ქართული, ინგლისური, რუსული (i18n)
+- [x] LocaleProvider + LocaleSwitch კომპონენტი
+- [x] შავი (#000000) accent ფერი ნაცვლად ლურჯის
+- [x] CORS fix (Spring Security filter chain)
+- [x] JWT issuer validation fix (Docker localhost vs network)
 
 **Sprint 1 DoD:**
 - მომხმარებელი რეგისტრირდება Keycloak-ით (email + social)
