@@ -2,12 +2,15 @@
 
 import { KeycloakProvider } from "@/components/KeycloakProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { LocaleProvider } from "@/components/LocaleProvider";
 import type { ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
-      <KeycloakProvider>{children}</KeycloakProvider>
+      <LocaleProvider>
+        <KeycloakProvider>{children}</KeycloakProvider>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

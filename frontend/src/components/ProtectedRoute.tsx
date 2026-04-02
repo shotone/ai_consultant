@@ -1,15 +1,17 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useLocale } from "@/hooks/useLocale";
 import type { ReactNode } from "react";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading, login } = useAuth();
+  const { t } = useLocale();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-500">იტვირთება...</div>
+        <div className="text-lg text-[var(--muted)]">{t("loading")}</div>
       </div>
     );
   }
@@ -17,13 +19,13 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h2 className="text-xl font-semibold">ავტორიზაცია საჭიროა</h2>
-        <p className="text-gray-500">ამ გვერდის სანახავად გთხოვთ შეხვიდეთ სისტემაში</p>
+        <h2 className="text-xl font-semibold text-[var(--foreground)]">{t("auth.required")}</h2>
+        <p className="text-[var(--muted)]">{t("auth.required.description")}</p>
         <button
           onClick={login}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="px-6 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition"
         >
-          შესვლა
+          {t("nav.login")}
         </button>
       </div>
     );

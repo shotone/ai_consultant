@@ -2,6 +2,7 @@
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocale } from "@/hooks/useLocale";
 import { apiClient } from "@/lib/api-client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -31,6 +32,7 @@ export default function ProfilePage() {
 
 function ProfileContent() {
   const { token, logout } = useAuth();
+  const { t } = useLocale();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -75,103 +77,103 @@ function ProfileContent() {
   if (!profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">იტვირთება...</div>
+        <div className="text-[var(--muted)]">{t("loading")}</div>
       </div>
     );
   }
 
   return (
     <div className="max-w-lg mx-auto mt-12 p-6">
-      <h1 className="text-2xl font-bold mb-6">ჩემი პროფილი</h1>
+      <h1 className="text-2xl font-bold mb-6 text-[var(--foreground)]">{t("profile.title")}</h1>
 
       <div className="space-y-4 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl p-6">
         <div>
-          <label className="block text-sm text-[var(--muted)]">Email</label>
-          <p className="text-lg">{profile.email}</p>
+          <label className="block text-sm text-[var(--muted)]">{t("profile.email")}</label>
+          <p className="text-lg text-[var(--foreground)]">{profile.email}</p>
         </div>
 
         <div>
-          <label className="block text-sm text-gray-500">სახელი</label>
+          <label className="block text-sm text-[var(--muted)]">{t("profile.name")}</label>
           {editing ? (
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 mt-1"
+              className="w-full border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-lg px-3 py-2 mt-1 outline-none focus:border-[var(--accent)]"
             />
           ) : (
-            <p className="text-lg">{profile.fullName}</p>
+            <p className="text-lg text-[var(--foreground)]">{profile.fullName}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm text-gray-500">ტელეფონი</label>
+          <label className="block text-sm text-[var(--muted)]">{t("profile.phone")}</label>
           {editing ? (
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="+995..."
-              className="w-full border rounded-lg px-3 py-2 mt-1"
+              placeholder={t("profile.phone.placeholder")}
+              className="w-full border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-lg px-3 py-2 mt-1 outline-none focus:border-[var(--accent)]"
             />
           ) : (
-            <p className="text-lg">{profile.phone || "არ არის მითითებული"}</p>
+            <p className="text-lg text-[var(--foreground)]">{profile.phone || t("profile.phone.empty")}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm text-gray-500">როლი</label>
-          <p className="text-lg capitalize">{profile.role}</p>
+          <label className="block text-sm text-[var(--muted)]">{t("profile.role")}</label>
+          <p className="text-lg capitalize text-[var(--foreground)]">{profile.role}</p>
         </div>
 
         {profile.sellerProfile && (
-          <div className="border-t pt-4 mt-4">
-            <h2 className="text-lg font-semibold mb-2">გამყიდველის პროფილი</h2>
-            <p>ბიზნესი: {profile.sellerProfile.businessName || "—"}</p>
-            <p>რეიტინგი: {profile.sellerProfile.rating}</p>
-            <p>გაყიდვები: {profile.sellerProfile.totalSales}</p>
+          <div className="border-t border-[var(--card-border)] pt-4 mt-4">
+            <h2 className="text-lg font-semibold mb-2 text-[var(--foreground)]">{t("seller.profile")}</h2>
+            <p className="text-[var(--foreground)]">{t("seller.business")}: {profile.sellerProfile.businessName || "—"}</p>
+            <p className="text-[var(--foreground)]">{t("seller.rating")}: {profile.sellerProfile.rating}</p>
+            <p className="text-[var(--foreground)]">{t("seller.sales")}: {profile.sellerProfile.totalSales}</p>
           </div>
         )}
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-4 flex-wrap">
           {editing ? (
             <>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition"
               >
-                შენახვა
+                {t("profile.save")}
               </button>
               <button
                 onClick={() => setEditing(false)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition"
+                className="px-4 py-2 border border-[var(--card-border)] text-[var(--foreground)] rounded-lg hover:bg-[var(--muted-bg)] transition"
               >
-                გაუქმება
+                {t("profile.cancel")}
               </button>
             </>
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+              className="px-4 py-2 bg-[var(--muted-bg)] text-[var(--foreground)] rounded-lg hover:bg-[var(--card-border)] transition"
             >
-              რედაქტირება
+              {t("profile.edit")}
             </button>
           )}
 
           {profile.role === "buyer" && (
             <Link
               href="/profile/become-seller"
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition"
             >
-              გამყიდველი გახდი
+              {t("profile.become_seller")}
             </Link>
           )}
 
           <button
             onClick={logout}
-            className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition ml-auto"
+            className="px-4 py-2 border border-red-400 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition ml-auto"
           >
-            გასვლა
+            {t("nav.logout")}
           </button>
         </div>
       </div>
