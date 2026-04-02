@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LocaleSwitch } from "@/components/LocaleSwitch";
 import { apiClient } from "@/lib/api-client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface ProductItem {
@@ -30,6 +30,14 @@ interface PageData {
 }
 
 export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-[var(--muted)]">...</div>}>
+      <ProductsContent />
+    </Suspense>
+  );
+}
+
+function ProductsContent() {
   const { token } = useAuth();
   const { t } = useLocale();
   const searchParams = useSearchParams();
