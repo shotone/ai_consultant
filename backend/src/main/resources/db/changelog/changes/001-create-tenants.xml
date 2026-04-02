@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-tenants" author="ipove">
+        <createTable tableName="tenants">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slug" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="type" type="varchar(20)" defaultValue="internal">
+                <constraints nullable="false"/>
+            </column>
+            <column name="plan" type="varchar(20)" defaultValue="starter"/>
+            <column name="config" type="jsonb" defaultValue="'{}'"/>
+            <column name="webhook_url" type="text"/>
+            <column name="monthly_quota" type="int" defaultValueNumeric="10000"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="deleted_at" type="timestamptz"/>
+        </createTable>
+
+        <sql>
+            ALTER TABLE tenants ADD CONSTRAINT chk_tenant_type
+                CHECK (type IN ('internal', 'api', 'white_label'));
+            ALTER TABLE tenants ADD CONSTRAINT chk_tenant_plan
+                CHECK (plan IN ('starter', 'growth', 'enterprise'));
+        </sql>
+    </changeSet>
+
+    <changeSet id="001-seed-default-tenant" author="ipove" context="dev">
+        <insert tableName="tenants">
+            <column name="id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="ipove.ai"/>
+            <column name="slug" value="ipove"/>
+            <column name="type" value="internal"/>
+            <column name="plan" value="enterprise"/>
+            <column name="is_active" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

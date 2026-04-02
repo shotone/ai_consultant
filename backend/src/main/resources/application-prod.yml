@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${RDS_HOST}:5432/ipove_prod
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    show-sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: 5672
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://auth.ipove.ai/realms/ipove-platform
+
+logging:
+  level:
+    ai.ipove: WARN
+    root: WARN
