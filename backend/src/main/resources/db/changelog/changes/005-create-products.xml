@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-create-products" author="ipove">
+        <createTable tableName="products">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tenant_id" type="uuid">
+                <constraints nullable="false"
+                             foreignKeyName="fk_products_tenant"
+                             references="tenants(id)"/>
+            </column>
+            <column name="seller_id" type="uuid">
+                <constraints nullable="false"
+                             foreignKeyName="fk_products_seller"
+                             references="users(id)"/>
+            </column>
+            <column name="category_id" type="uuid">
+                <constraints foreignKeyName="fk_products_category"
+                             references="categories(id)"/>
+            </column>
+            <column name="title" type="varchar(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="decimal(12,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="varchar(3)" defaultValue="GEL"/>
+            <column name="condition" type="varchar(20)" defaultValue="good"/>
+            <column name="status" type="varchar(20)" defaultValue="active"/>
+            <column name="location" type="varchar(255)"/>
+            <column name="images" type="text[]"/>
+            <column name="metadata" type="jsonb" defaultValueComputed="'{}'::jsonb"/>
+            <column name="view_count" type="int" defaultValueNumeric="0"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="deleted_at" type="timestamptz"/>
+        </createTable>
+
+        <sql>
+            ALTER TABLE products ADD CONSTRAINT chk_product_condition
+                CHECK (condition IN ('new', 'like_new', 'good', 'fair'));
+            ALTER TABLE products ADD CONSTRAINT chk_product_status
+                CHECK (status IN ('active', 'sold', 'reserved', 'inactive'));
+        </sql>
+
+        <createIndex tableName="products" indexName="idx_products_tenant">
+            <column name="tenant_id"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_seller">
+            <column name="seller_id"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_category">
+            <column name="category_id"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_status">
+            <column name="tenant_id"/>
+            <column name="status"/>
+        </createIndex>
+        <createIndex tableName="products" indexName="idx_products_price">
+            <column name="tenant_id"/>
+            <column name="price"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

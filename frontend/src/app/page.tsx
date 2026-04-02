@@ -43,10 +43,16 @@ export default function Home() {
             </p>
             <p className="text-sm text-[var(--muted)]">{user.email}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap justify-center">
+            <Link
+              href="/products"
+              className="px-6 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition"
+            >
+              {t("products.title")}
+            </Link>
             <Link
               href="/profile"
-              className="px-6 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition"
+              className="px-6 py-2 border border-[var(--card-border)] text-[var(--foreground)] rounded-lg hover:bg-[var(--muted-bg)] transition"
             >
               {t("nav.profile")}
             </Link>

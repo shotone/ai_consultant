@@ -197,41 +197,44 @@ public abstract class BaseEntity {
 > **მიზანი:** გამყიდველს შეუძლია პროდუქტის CRUD, კატეგორიების სისტემა მუშაობს.
 
 ### Backend
-- [ ] `Category` entity (hierarchical — parent_id)
-- [ ] `Product` entity (extends BaseEntity, soft delete)
-- [ ] `CategoryRepository`, `ProductRepository`
-- [ ] `CategoryService` — tree structure, caching (Redis)
-- [ ] `ProductService` — CRUD, soft delete, seller ownership validation
-- [ ] `ProductController` — REST endpoints
+- [x] `Category` entity (hierarchical — parent_id)
+- [x] `Product` entity (extends BaseEntity, soft delete)
+- [x] `CategoryRepository`, `ProductRepository`
+- [x] `CategoryService` — tree structure, caching (Redis @Cacheable)
+- [x] `ProductService` — CRUD, soft delete, seller ownership validation
+- [x] `ProductController` — REST endpoints
   - `POST /api/products`
   - `GET /api/products/:id`
   - `PATCH /api/products/:id`
   - `DELETE /api/products/:id` (soft delete)
   - `GET /api/products/seller/:sellerId`
-  - `GET /api/products?category=&status=` (basic listing)
-- [ ] Image upload: S3/R2 integration (presigned URLs)
-- [ ] `ImageService` — upload, resize, delete
-- [ ] Product validation (title, price, images required)
-- [ ] Redis caching: categories, popular products
+  - `GET /api/products?categoryId=` (listing with pagination)
+- [x] Image upload: local file storage for dev (S3 placeholder)
+- [x] `ImageService` — upload, delete
+- [x] Product validation (title, price, description required)
+- [x] Redis caching: categories (@Cacheable)
+- [x] `CategoryController` — GET /api/categories, GET by id/slug/children
 
 ### Liquibase
-- [ ] `categories` ცხრილის მიგრაცია + seed data (ძირითადი კატეგორიები)
-- [ ] `products` ცხრილის მიგრაცია (with deleted_at, embedding vector column)
-- [ ] Indexes: category_id, seller_id, status, price, tenant_id
+- [x] `categories` ცხრილის მიგრაცია + seed data (7 კატეგორია: 4 root + 3 sub)
+- [x] `products` ცხრილის მიგრაცია (with deleted_at, metadata jsonb)
+- [x] Indexes: category_id, seller_id, status+tenant, price+tenant
 
 ### ტესტები
-- [ ] `ProductService` unit tests (create, update, delete, softDelete, ownership check)
-- [ ] `ProductController` integration tests
-- [ ] `CategoryService` unit tests (tree structure, cache invalidation)
+- [x] `ProductService` unit tests (create, update, softDelete, ownership check) — 7 tests
+- [x] `ProductController` integration tests (create, get, delete, list) — 4 tests
+- [x] `CategoryService` unit tests (tree, getById, getChildren) — 4 tests
 - [ ] Image upload integration test
-- [ ] Soft delete integration test — წაშლილი პროდუქტი API-ში არ ჩანს
+- [x] Soft delete integration test — წაშლილი პროდუქტი API-ში არ ჩანს
 
 ### Frontend
-- [ ] პროდუქტის ნახვის გვერდი (detail page)
-- [ ] პროდუქტის დამატების ფორმა (ტრადიციული — ჩათიდან Sprint 4-ში)
-- [ ] კატეგორიების ბრაუზინგი
-- [ ] Image upload component (drag & drop)
-- [ ] Frontend tests
+- [x] პროდუქტის ნახვის გვერდი (detail page)
+- [x] პროდუქტის დამატების ფორმა (ტრადიციული)
+- [x] პროდუქტების ლისტი (grid layout, pagination ready)
+- [x] კატეგორიების ბრაუზინგი (dropdown in add form)
+- [ ] Image upload component (drag & drop) — Sprint 4-ში ჩათიდან
+- [x] Frontend tests (5 passed)
+- [x] i18n: product/category ტექსტები 3 ენაზე
 
 **Sprint 2 DoD:**
 - პროდუქტის CRUD მუშაობს (API + UI)

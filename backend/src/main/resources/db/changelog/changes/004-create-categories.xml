@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-create-categories" author="ipove">
+        <createTable tableName="categories">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tenant_id" type="uuid">
+                <constraints nullable="false"
+                             foreignKeyName="fk_categories_tenant"
+                             references="tenants(id)"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slug" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_id" type="uuid">
+                <constraints foreignKeyName="fk_categories_parent"
+                             references="categories(id)"/>
+            </column>
+            <column name="icon" type="varchar(50)"/>
+            <column name="sort_order" type="int" defaultValueNumeric="0"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="deleted_at" type="timestamptz"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="categories"
+                             columnNames="tenant_id, slug"
+                             constraintName="uq_categories_tenant_slug"/>
+
+        <createIndex tableName="categories" indexName="idx_categories_parent">
+            <column name="parent_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="004-seed-categories" author="ipove" context="dev">
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000001"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="ელექტრონიკა"/>
+            <column name="slug" value="electronics"/>
+            <column name="sort_order" valueNumeric="1"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000002"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="ტანსაცმელი"/>
+            <column name="slug" value="clothing"/>
+            <column name="sort_order" valueNumeric="2"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000003"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="სახლი და ბაღი"/>
+            <column name="slug" value="home-garden"/>
+            <column name="sort_order" valueNumeric="3"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000004"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="ავტომობილი"/>
+            <column name="slug" value="auto"/>
+            <column name="sort_order" valueNumeric="4"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000011"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="ლეპტოპები"/>
+            <column name="slug" value="laptops"/>
+            <column name="parent_id" value="10000000-0000-0000-0000-000000000001"/>
+            <column name="sort_order" valueNumeric="1"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000012"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="სმარტფონები"/>
+            <column name="slug" value="smartphones"/>
+            <column name="parent_id" value="10000000-0000-0000-0000-000000000001"/>
+            <column name="sort_order" valueNumeric="2"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="id" value="10000000-0000-0000-0000-000000000013"/>
+            <column name="tenant_id" value="00000000-0000-0000-0000-000000000001"/>
+            <column name="name" value="აქსესუარები"/>
+            <column name="slug" value="accessories"/>
+            <column name="parent_id" value="10000000-0000-0000-0000-000000000001"/>
+            <column name="sort_order" valueNumeric="3"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
