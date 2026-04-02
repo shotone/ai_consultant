@@ -1,5 +1,6 @@
 package ai.ipove.category.service;
 
+import ai.ipove.category.dto.CategoryResponse;
 import ai.ipove.category.entity.Category;
 import ai.ipove.category.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -38,10 +39,10 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("getCategoryTree returns root categories")
+    @DisplayName("getCategoryTree returns root categories as DTOs")
     void getCategoryTree() {
         when(categoryRepository.findRootCategories(any())).thenReturn(List.of(electronics));
-        List<Category> tree = categoryService.getCategoryTree();
+        List<CategoryResponse> tree = categoryService.getCategoryTree();
         assertThat(tree).hasSize(1);
         assertThat(tree.get(0).getName()).isEqualTo("Electronics");
     }

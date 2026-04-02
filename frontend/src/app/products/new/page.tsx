@@ -32,6 +32,8 @@ function NewProductContent() {
   const [condition, setCondition] = useState("good");
   const [categoryId, setCategoryId] = useState("");
   const [location, setLocation] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +43,31 @@ function NewProductContent() {
       .then((res) => setCategories(res.data))
       .catch(() => {});
   }, [token]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !token) return;
+    setUploading(true);
+    const newImages: string[] = [];
+    for (const file of Array.from(e.target.files)) {
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("http://localhost:8080/api/products/images", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          newImages.push(json.data);
+        }
+      } catch {
+        // skip failed uploads
+      }
+    }
+    setImages((prev) => [...prev, ...newImages]);
+    setUploading(false);
+  };
 
   const flatCategories = (cats: CategoryOption[], prefix = ""): { id: string; label: string }[] => {
     const result: { id: string; label: string }[] = [];
@@ -70,6 +97,7 @@ function NewProductContent() {
           condition,
           categoryId: categoryId || null,
           location: location || null,
+          images,
         }),
       });
       router.push("/products");
@@ -126,6 +154,42 @@ function NewProductContent() {
         <div>
           <label className="block text-sm font-medium mb-1 text-[var(--foreground)]">{t("products.location")}</label>
           <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} className={inputClass} />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1 text-[var(--foreground)]">{t("products.images")}</label>
+          <div className="border-2 border-dashed border-[var(--input-border)] rounded-lg p-4 text-center">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              className="hidden"
+              id="image-upload"
+            />
+            <label
+              htmlFor="image-upload"
+              className="cursor-pointer text-[var(--muted)] hover:text-[var(--foreground)] transition"
+            >
+              {uploading ? "..." : "📷 Click to upload images"}
+            </label>
+          </div>
+          {images.length > 0 && (
+            <div className="flex gap-2 mt-2 flex-wrap">
+              {images.map((img, i) => (
+                <div key={i} className="relative">
+                  <img src={img} alt="" className="w-20 h-20 rounded-lg object-cover border border-[var(--card-border)]" />
+                  <button
+                    type="button"
+                    onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}

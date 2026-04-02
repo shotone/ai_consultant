@@ -19,10 +19,7 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getTree() {
-        List<CategoryResponse> tree = categoryService.getCategoryTree().stream()
-                .map(c -> CategoryResponse.from(c, true))
-                .toList();
-        return ResponseEntity.ok(ApiResponse.ok(tree));
+        return ResponseEntity.ok(ApiResponse.ok(categoryService.getCategoryTree()));
     }
 
     @GetMapping("/{id}")

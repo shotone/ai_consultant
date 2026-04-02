@@ -1,12 +1,11 @@
 package ai.ipove.category.service;
 
+import ai.ipove.category.dto.CategoryResponse;
 import ai.ipove.category.entity.Category;
 import ai.ipove.category.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +21,11 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    @Cacheable(value = "categories", key = "'tree'")
     @Transactional(readOnly = true)
-    public List<Category> getCategoryTree() {
-        log.debug("Loading category tree from DB (cache miss)");
-        return categoryRepository.findRootCategories(DEFAULT_TENANT_ID);
+    public List<CategoryResponse> getCategoryTree() {
+        log.debug("Loading category tree from DB");
+        List<Category> roots = categoryRepository.findRootCategories(DEFAULT_TENANT_ID);
+        return roots.stream().map(c -> CategoryResponse.from(c, true)).toList();
     }
 
     @Transactional(readOnly = true)
@@ -46,8 +45,4 @@ public class CategoryService {
         return categoryRepository.findByParentId(parentId);
     }
 
-    @CacheEvict(value = "categories", allEntries = true)
-    public void evictCache() {
-        log.info("Category cache evicted");
-    }
 }
