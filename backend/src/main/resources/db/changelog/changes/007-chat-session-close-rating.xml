@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="007-chat-session-close-rating" author="ipove">
+        <addColumn tableName="chat_sessions">
+            <column name="closed_at" type="timestamptz"/>
+            <column name="rating" type="smallint"/>
+        </addColumn>
+        <sql>
+            ALTER TABLE chat_sessions ADD CONSTRAINT chk_chat_sessions_rating
+                CHECK (rating IS NULL OR (rating &gt;= 1 AND rating &lt;= 5));
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

@@ -8,7 +8,15 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Builder
-public record ChatSessionResponse(UUID id, ChatSessionMode mode, String title, String status, Instant createdAt) {
+public record ChatSessionResponse(
+        UUID id,
+        ChatSessionMode mode,
+        String title,
+        String status,
+        Instant createdAt,
+        Instant updatedAt,
+        Instant closedAt,
+        Integer rating) {
 
     public static ChatSessionResponse from(ChatSession s) {
         return ChatSessionResponse.builder()
@@ -17,6 +25,9 @@ public record ChatSessionResponse(UUID id, ChatSessionMode mode, String title, S
                 .title(s.getTitle())
                 .status(s.getStatus().name().toLowerCase())
                 .createdAt(s.getCreatedAt())
+                .updatedAt(s.getUpdatedAt())
+                .closedAt(s.getClosedAt())
+                .rating(s.getRating())
                 .build();
     }
 }

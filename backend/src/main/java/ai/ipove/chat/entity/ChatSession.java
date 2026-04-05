@@ -5,6 +5,8 @@ import ai.ipove.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "chat_sessions")
 @Getter
@@ -29,4 +31,11 @@ public class ChatSession extends BaseEntity {
 
     @Column(name = "title", length = 255)
     private String title;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
+    /** 1–5 შეფასება დახურვისას; null თუ არ შეუსრულებია. */
+    @Column(name = "rating")
+    private Integer rating;
 }

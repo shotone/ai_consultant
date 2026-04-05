@@ -63,6 +63,16 @@ public class ChatController {
         return ResponseEntity.ok(ApiResponse.ok(chatService.listMessages(user, id)));
     }
 
+    @PostMapping("/{id}/close")
+    public ResponseEntity<ApiResponse<ChatSessionResponse>> closeSession(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody(required = false) @Valid CloseChatSessionRequest request) {
+        User user = userService.getOrCreateFromJwt(jwt);
+        CloseChatSessionRequest body = request != null ? request : new CloseChatSessionRequest();
+        return ResponseEntity.ok(ApiResponse.ok(chatService.closeSession(user, id, body)));
+    }
+
     @PostMapping("/{id}/messages")
     public ResponseEntity<ApiResponse<ChatService.SendMessageResult>> sendMessage(
             @PathVariable UUID id,

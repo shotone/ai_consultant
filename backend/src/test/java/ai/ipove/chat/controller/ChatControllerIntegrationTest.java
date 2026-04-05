@@ -104,4 +104,41 @@ class ChatControllerIntegrationTest {
         org.junit.jupiter.api.Assertions.assertEquals(
                 2, chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(UUID.fromString(sessionId)).size());
     }
+
+    @Test
+    @DisplayName("POST close then message returns 409")
+    void closeThenSendConflict() throws Exception {
+        CreateChatSessionRequest req = new CreateChatSessionRequest();
+        req.setMode(ChatSessionMode.BUYER);
+        String sessionJson = mockMvc.perform(post("/api/chat/sessions")
+                        .with(jwt().jwt(b -> b.subject("kc-chat-test")
+                                .claim("email", "chat@test.com")
+                                .claim("name", "Chat User")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String sessionId = objectMapper.readTree(sessionJson).path("data").path("id").asText();
+
+        mockMvc.perform(post("/api/chat/sessions/" + sessionId + "/close")
+                        .with(jwt().jwt(b -> b.subject("kc-chat-test")
+                                .claim("email", "chat@test.com")
+                                .claim("name", "Chat User")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"rating\":5}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("closed"))
+                .andExpect(jsonPath("$.data.rating").value(5));
+
+        mockMvc.perform(post("/api/chat/sessions/" + sessionId + "/messages")
+                        .with(jwt().jwt(b -> b.subject("kc-chat-test")
+                                .claim("email", "chat@test.com")
+                                .claim("name", "Chat User")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"hi\"}"))
+                .andExpect(status().isConflict());
+    }
 }

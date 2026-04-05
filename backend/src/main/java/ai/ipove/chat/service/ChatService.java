@@ -8,12 +8,15 @@ import ai.ipove.chat.repository.ChatSessionRepository;
 import ai.ipove.config.RabbitMQConfig;
 import ai.ipove.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
+import ai.ipove.chat.util.AssistantTextSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.*;
@@ -67,8 +70,23 @@ public class ChatService {
     }
 
     @Transactional
-    public SendMessageResult sendMessage(User user, UUID sessionId, SendChatMessageRequest request) {
+    public ChatSessionResponse closeSession(User user, UUID sessionId, CloseChatSessionRequest request) {
         ChatSession session = verifySession(user, sessionId);
+        if (session.getStatus() != ChatSessionStatus.ACTIVE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Chat session is already closed");
+        }
+        session.setStatus(ChatSessionStatus.CLOSED);
+        session.setClosedAt(Instant.now());
+        if (request.getRating() != null) {
+            session.setRating(request.getRating());
+        }
+        chatSessionRepository.save(session);
+        return ChatSessionResponse.from(session);
+    }
+
+    @Transactional
+    public SendMessageResult sendMessage(User user, UUID sessionId, SendChatMessageRequest request) {
+        ChatSession session = verifyActiveSession(user, sessionId);
 
         ChatMessage userMsg = ChatMessage.builder()
                 .session(session)
@@ -90,10 +108,12 @@ public class ChatService {
                     reply.suggestedProducts().stream().map(this::snippetToMap).toList());
         }
 
+        String assistantPlain = AssistantTextSanitizer.toPlainAssistantText(reply.text());
+
         ChatMessage assistantMsg = ChatMessage.builder()
                 .session(session)
                 .role(ChatMessageRole.ASSISTANT)
-                .content(reply.text())
+                .content(assistantPlain)
                 .metadata(metadata)
                 .build();
         assistantMsg.setTenantId(session.getTenantId());
@@ -162,5 +182,13 @@ public class ChatService {
         return chatSessionRepository
                 .findByIdAndUser_IdAndDeletedAtIsNull(sessionId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Chat session not found"));
+    }
+
+    private ChatSession verifyActiveSession(User user, UUID sessionId) {
+        ChatSession session = verifySession(user, sessionId);
+        if (session.getStatus() != ChatSessionStatus.ACTIVE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Chat session is closed");
+        }
+        return session;
     }
 }

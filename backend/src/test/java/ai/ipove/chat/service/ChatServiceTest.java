@@ -96,7 +96,7 @@ class ChatServiceTest {
         when(geminiBuyerLlmClient.isEnabled()).thenReturn(false);
         when(anthropicBuyerLlmClient.isEnabled()).thenReturn(false);
         when(stubBuyerLlmClient.completeBuyerTurn(any(), any()))
-                .thenReturn(LlmReply.textOnly("გამარჯობა"));
+                .thenReturn(LlmReply.textOnly("**გამარჯობა**"));
 
         SendChatMessageRequest req = new SendChatMessageRequest();
         req.setContent("hello");
