@@ -45,8 +45,14 @@ export default function Home() {
           </div>
           <div className="flex gap-3 flex-wrap justify-center">
             <Link
-              href="/products"
+              href="/chat"
               className="px-6 py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition"
+            >
+              {t("chat.title")}
+            </Link>
+            <Link
+              href="/products"
+              className="px-6 py-2 border border-[var(--accent)] text-[var(--accent)] rounded-lg hover:bg-[var(--muted-bg)] transition"
             >
               {t("products.title")}
             </Link>

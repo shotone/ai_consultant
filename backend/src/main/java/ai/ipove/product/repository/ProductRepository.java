@@ -5,6 +5,7 @@ import ai.ipove.product.entity.Product;
 import ai.ipove.product.entity.ProductStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,4 +26,14 @@ public interface ProductRepository extends SoftDeleteRepository<Product> {
 
     @Query("SELECT p FROM Product p WHERE p.tenantId = :tenantId AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
     Page<Product> findAllByTenantId(@Param("tenantId") UUID tenantId, Pageable pageable);
+
+    @Query(
+            "SELECT p FROM Product p WHERE p.tenantId = :tenantId AND p.status = :status AND p.deletedAt IS NULL AND "
+                    + "(LOWER(p.title) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :q, '%'))) "
+                    + "ORDER BY p.createdAt DESC")
+    Slice<Product> searchActiveByKeyword(
+            @Param("tenantId") UUID tenantId,
+            @Param("status") ProductStatus status,
+            @Param("q") String q,
+            Pageable pageable);
 }

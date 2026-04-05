@@ -3,8 +3,8 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useLocale } from "@/hooks/useLocale";
 import { apiClient } from "@/lib/api-client";
-import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ProductDetail {
@@ -27,10 +27,13 @@ interface ProductDetail {
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { token } = useAuth();
   const { t } = useLocale();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -39,6 +42,29 @@ export default function ProductDetailPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id, token]);
+
+  useEffect(() => {
+    if (!token) {
+      setCurrentUserId(null);
+      return;
+    }
+    apiClient<{ data: { id: string } }>("/users/me", { token })
+      .then((res) => setCurrentUserId(res.data.id))
+      .catch(() => setCurrentUserId(null));
+  }, [token]);
+
+  const isOwner = Boolean(product && currentUserId && currentUserId === product.sellerId);
+
+  const handleDelete = async () => {
+    if (!token || !id || !window.confirm(t("products.delete_confirm"))) return;
+    setDeleting(true);
+    try {
+      await apiClient(`/products/${id}`, { method: "DELETE", token });
+      router.push("/products");
+    } catch {
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen text-[var(--muted)]">{t("loading")}</div>;
@@ -115,9 +141,28 @@ export default function ProductDetailPage() {
             <p className="text-sm text-[var(--muted)]">
               {product.sellerName}
             </p>
-            <button className="w-full py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition">
-              {t("products.contact_seller")}
-            </button>
+            {isOwner ? (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Link
+                  href={`/products/${product.id}/edit`}
+                  className="flex-1 text-center py-2 border border-[var(--card-border)] text-[var(--foreground)] rounded-lg hover:bg-[var(--muted-bg)] transition"
+                >
+                  {t("products.edit")}
+                </Link>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={handleDelete}
+                  className="flex-1 py-2 border border-red-500/50 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-500/10 transition disabled:opacity-50"
+                >
+                  {deleting ? t("products.deleting") : t("products.delete")}
+                </button>
+              </div>
+            ) : (
+              <button className="w-full py-2 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)] transition">
+                {t("products.contact_seller")}
+              </button>
+            )}
           </div>
         </div>
       </div>

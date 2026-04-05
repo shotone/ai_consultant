@@ -77,6 +77,8 @@ services:
       SPRING_RABBITMQ_PASSWORD: ipove_secret
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8180/realms/ipove-platform
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8180/realms/ipove-platform/protocol/openid-connect/certs
+      IPOVE_AI_GOOGLE_API_KEY: ${GOOGLE_AI_API_KEY:-}
+      IPOVE_AI_ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy

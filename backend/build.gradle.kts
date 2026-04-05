@@ -43,6 +43,9 @@ dependencies {
     // Jackson
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
+    // NL→SQL: მხოლოდ SELECT-ის ანალიზი/გაფილტვრა
+    implementation("com.github.jsqlparser:jsqlparser:4.9")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

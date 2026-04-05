@@ -249,51 +249,53 @@ public abstract class BaseEntity {
 
 > **მიზანი:** AI ჩათი მუშაობს — "რას ეძებ?" მიმართულება ძირითადი ფუნქციონალით.
 
+> **შენიშვნა (იმპლემენტაცია):** მთავარი LLM ჯაჭვი ამ ეტაპზე **Spring Boot-შია** (`AnthropicBuyerLlmClient` + `StubBuyerLlmClient`). `IPOVE_AI_ANTHROPIC_API_KEY` / `ipove.ai.anthropic-api-key` ცარიელია → stub + keyword ძებნა. Streaming: **SSE** (`POST .../messages/stream`), არა WebSocket. Python მიკროსერვისი: `ai_service/` მინიმალური FastAPI `/health` — LangChain და Spring↔Python gateway შემდეგ ეტაპებზე.
+
 ### Python AI Service
-- [ ] FastAPI პროექტის ინიციალიზაცია
+- [x] FastAPI პროექტის ინიციალიზაცია (`ai_service/main.py`, `/health`)
 - [ ] LangChain/LangGraph agent setup
-- [ ] Claude Sonnet integration (მთავარი ჩათის ძრავი)
+- [x] Claude ინტეგრაცია — Spring-ში (`AnthropicBuyerLlmClient`, tool `search_products`)
 - [ ] GPT-4o-mini integration (entity extraction, classification)
-- [ ] Chat memory (conversation history)
-- [ ] `buyer_system_prompt` — გამყიდველი კონსულტანტის პრომფტი
-- [ ] Tool: `search_products` — პროდუქტების ძებნა
+- [x] Chat memory (conversation history) — `chat_messages` + ისტორია API-ზე
+- [x] Buyer system prompt — `AnthropicBuyerLlmClient` system string
+- [x] Tool: `search_products` — `ProductSearchTool` + Anthropic tool schema
 - [ ] Tool: `get_product_details` — პროდუქტის დეტალები
 - [ ] Tool: `compare_products` — შედარება
-- [ ] Intent detection: "რას ეძებ?" vs "რას ყიდი?"
-- [ ] Health check endpoint
-- [ ] Docker image
+- [x] სესიის რეჟიმი BUYER vs SELLER (`session_mode`; seller placeholder ტექსტი)
+- [x] Health check endpoint (`ai_service`)
+- [x] Docker image (`ai_service/Dockerfile`)
 
 ### Backend (Spring Boot)
-- [ ] `ChatSession` entity (extends BaseEntity)
-- [ ] `ChatMessage` entity (extends BaseEntity)
-- [ ] `ChatSessionRepository`, `ChatMessageRepository`
-- [ ] `ChatService` — session management, message history
-- [ ] `AiGatewayService` — Spring ↔ Python AI Service (HTTP client)
-- [ ] `ChatController`
-  - `POST /api/chat/sessions` (ახალი სესია)
-  - `GET /api/chat/sessions` (სესიების ლისტი)
-  - `GET /api/chat/sessions/:id/messages` (ისტორია)
-  - `POST /api/chat/sessions/:id/messages` (შეტყობინების გაგზავნა)
-- [ ] WebSocket endpoint: `/api/chat/sessions/:id/stream` (streaming response)
-- [ ] RabbitMQ: `chat.message` queue (async processing)
+- [x] `ChatSession` entity (extends BaseEntity)
+- [x] `ChatMessage` entity (extends BaseEntity)
+- [x] `ChatSessionRepository`, `ChatMessageRepository`
+- [x] `ChatService` — session management, message history
+- [ ] `AiGatewayService` — Spring ↔ Python AI Service (HTTP client) — გადავადებულია
+- [x] `ChatController`
+  - [x] `POST /api/chat/sessions` (ახალი სესია)
+  - [x] `GET /api/chat/sessions` (სესიების ლისტი)
+  - [x] `GET /api/chat/sessions/:id/messages` (ისტორია)
+  - [x] `POST /api/chat/sessions/:id/messages` (შეტყობინების გაგზავნა)
+- [x] Streaming: `POST /api/chat/sessions/:id/messages/stream` (SSE; არქიტექტურაში WebSocket — შემდეგ ეტაპზე)
+- [x] RabbitMQ: `chat.message` routing + queue `chat.message`
 
 ### Liquibase
-- [ ] `chat_sessions` ცხრილის მიგრაცია
-- [ ] `chat_messages` ცხრილის მიგრაცია
+- [x] `chat_sessions` ცხრილის მიგრაცია (`006-create-chat.xml`)
+- [x] `chat_messages` ცხრილის მიგრაცია
 
 ### ტესტები
 - [ ] Python AI Service: unit tests (pytest, intent detection, tool calling)
-- [ ] `ChatService` unit tests
-- [ ] `ChatController` integration tests
+- [x] `ChatService` unit tests
+- [x] `ChatController` integration tests
 - [ ] AI Gateway integration test (WireMock — mock Python AI responses)
-- [ ] WebSocket integration test
+- [ ] WebSocket integration test (SSE ტესტი — მომავალში ან რჩება WS გადასვლისას)
 
 ### Frontend
-- [ ] Chat UI component (მესიჯების გამოჩენა, streaming)
-- [ ] "რას ეძებ? / რას ყიდი?" საწყისი არჩევანი
-- [ ] პროდუქტის ბარათი ჩათში (AI-ს რეკომენდაცია inline)
-- [ ] WebSocket connection management
-- [ ] Frontend tests (chat component)
+- [x] Chat UI (`/chat`) + SSE streaming
+- [x] "რას ეძებ? / რას ყიდი?" საწყისი არჩევანი
+- [x] პროდუქტის ბარათი ჩათში (`metadata.products`)
+- [ ] WebSocket connection management (SSE გამოიყენება)
+- [x] Frontend tests — Vitest `sse.ts` (SSE parse/decode); chat UI ტესტი მომავალში
 
 **Sprint 3 DoD:**
 - ჩათი ეშვება, AI პასუხობს ქართულად

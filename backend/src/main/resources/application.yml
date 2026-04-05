@@ -33,6 +33,17 @@ management:
     health:
       show-details: when-authorized
 
+# LLM გასაღებები მხოლოდ env-იდან (იხ. AiProperties): GOOGLE_AI_API_KEY / IPOVE_AI_GOOGLE_API_KEY, ANTHROPIC_API_KEY / IPOVE_AI_ANTHROPIC_API_KEY.
+ipove:
+  ai:
+    model: claude-3-5-sonnet-20241022
+    max-tokens: 2048
+    # იგივე ID რაც AI Studio curl-ში (v1beta); ძველი სახელები (მაგ. gemini-1.5-flash) შეიძლება 404 იყოს.
+    google-ai-model: gemini-flash-latest
+    google-ai-max-output-tokens: 2048
+    buyer-nl-sql-enabled: true
+    buyer-nl-sql-max-rows: 30
+
 logging:
   level:
     ai.ipove: DEBUG

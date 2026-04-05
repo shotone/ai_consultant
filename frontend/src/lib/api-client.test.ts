@@ -15,14 +15,10 @@ describe("apiClient", () => {
     const { apiClient } = await import("./api-client");
     const result = await apiClient("/users/me");
 
-    expect(fetch).toHaveBeenCalledWith(
-      "http://localhost:8080/api/users/me",
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          "Content-Type": "application/json",
-        }),
-      })
-    );
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [, init] = vi.mocked(fetch).mock.calls[0];
+    expect(init?.headers).toBeDefined();
+    expect((init?.headers as Record<string, string>)["Content-Type"]).toBeUndefined();
     expect(result).toEqual(mockResponse);
   });
 

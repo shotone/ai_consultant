@@ -3,6 +3,7 @@ package ai.ipove.product.service;
 import ai.ipove.category.entity.Category;
 import ai.ipove.category.service.CategoryService;
 import ai.ipove.product.dto.CreateProductRequest;
+import ai.ipove.product.dto.ProductResponse;
 import ai.ipove.product.dto.UpdateProductRequest;
 import ai.ipove.product.entity.Product;
 import ai.ipove.product.entity.ProductCondition;
@@ -29,6 +30,11 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
+
+    @Transactional
+    public ProductResponse createAndMap(User seller, CreateProductRequest request) {
+        return ProductResponse.from(create(seller, request));
+    }
 
     @Transactional
     public Product create(User seller, CreateProductRequest request) {
@@ -70,6 +76,11 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductResponse getByIdAndIncrementViewsAsResponse(UUID id) {
+        return ProductResponse.from(getByIdAndIncrementViews(id));
+    }
+
+    @Transactional
     public Product update(UUID productId, User currentUser, UpdateProductRequest request) {
         Product product = getById(productId);
         verifyOwnership(product, currentUser);
@@ -89,6 +100,11 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductResponse updateAsResponse(UUID productId, User currentUser, UpdateProductRequest request) {
+        return ProductResponse.from(update(productId, currentUser, request));
+    }
+
+    @Transactional
     public void softDelete(UUID productId, User currentUser) {
         Product product = getById(productId);
         verifyOwnership(product, currentUser);
@@ -103,11 +119,24 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ProductResponse> getBySellerAsResponses(UUID sellerId, Pageable pageable) {
+        return getBySeller(sellerId, pageable).map(ProductResponse::from);
+    }
+
+    @Transactional(readOnly = true)
     public Page<Product> list(UUID categoryId, Pageable pageable) {
         if (categoryId != null) {
             return productRepository.findByTenantIdAndCategoryId(DEFAULT_TENANT_ID, categoryId, pageable);
         }
         return productRepository.findByTenantIdAndStatus(DEFAULT_TENANT_ID, ProductStatus.ACTIVE, pageable);
+    }
+
+    /**
+     * Maps to DTO inside the transaction so lazy seller/category load before the session closes.
+     */
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> listAsResponses(UUID categoryId, Pageable pageable) {
+        return list(categoryId, pageable).map(ProductResponse::from);
     }
 
     private void verifyOwnership(Product product, User user) {

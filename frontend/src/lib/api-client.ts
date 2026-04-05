@@ -12,9 +12,15 @@ export async function apiClient<T>(
   const { token, headers: customHeaders, ...fetchOptions } = options;
 
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     ...((customHeaders as Record<string, string>) || {}),
   };
+  if (
+    fetchOptions.body != null &&
+    !(fetchOptions.body instanceof FormData) &&
+    !headers["Content-Type"]
+  ) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;

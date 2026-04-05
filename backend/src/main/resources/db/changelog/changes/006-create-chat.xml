@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-create-chat-sessions" author="ipove">
+        <createTable tableName="chat_sessions">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tenant_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_chat_sessions_tenant" references="tenants(id)"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_chat_sessions_user" references="users(id)"/>
+            </column>
+            <column name="session_mode" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)" defaultValue="active">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="deleted_at" type="timestamptz"/>
+        </createTable>
+        <createIndex indexName="idx_chat_sessions_user" tableName="chat_sessions">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex indexName="idx_chat_sessions_tenant" tableName="chat_sessions">
+            <column name="tenant_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="006-create-chat-messages" author="ipove">
+        <createTable tableName="chat_messages">
+            <column name="id" type="uuid" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tenant_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_chat_messages_tenant" references="tenants(id)"/>
+            </column>
+            <column name="session_id" type="uuid">
+                <constraints nullable="false" foreignKeyName="fk_chat_messages_session" references="chat_sessions(id)" deleteCascade="true"/>
+            </column>
+            <column name="role" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="metadata" type="jsonb" defaultValueComputed="'{}'::jsonb"/>
+            <column name="created_at" type="timestamptz" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="deleted_at" type="timestamptz"/>
+        </createTable>
+        <createIndex indexName="idx_chat_messages_session" tableName="chat_messages">
+            <column name="session_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

@@ -30,6 +30,8 @@ spring:
           jwk-set-uri: http://localhost:8180/realms/ipove-platform/protocol/openid-connect/certs
 
 ipove:
+  ai:
+    model: claude-3-5-sonnet-20241022
   notifications:
     email:
       enabled: true
