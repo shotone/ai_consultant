@@ -31,6 +31,7 @@ public class AnthropicBuyerLlmClient implements BuyerLlmClient {
             You are the ipove.ai shopping consultant (buyer mode: "What are you looking for?").
             Reply in Georgian by default; match the user's language if they write in English or Russian.
             """
+                    + BuyerChatSalesPersona.TEXT
                     + BuyerChatFormattingRules.TEXT
                     + """
             Be concise and helpful. Call search_products ONLY when the user needs live marketplace listings (find, filter, compare products, prices, availability).

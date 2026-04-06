@@ -1,6 +1,11 @@
 /** LLM ხშირად წერს **bold** Markdown-ს; UI plain ტექსტზე ორმაგი ვარსკვლავები ჩანს — ვაშორებთ. */
 export function stripLlmMarkdown(text: string): string {
-  return text.replace(/\*\*/g, "").replace(/__/g, "");
+  // Add space when markers are directly adjacent to characters to prevent word merging
+  let t = text.replace(/(\S)\*\*(\S)/g, "$1 $2");
+  t = t.replace(/(\S)\*\*/g, "$1").replace(/\*\*(\S)/g, "$1").replace(/\*\*/g, "");
+  t = t.replace(/(\S)__(\S)/g, "$1 $2");
+  t = t.replace(/(\S)__/g, "$1").replace(/__(\S)/g, "$1").replace(/__/g, "");
+  return t.replace(/[ \t]+/g, " ");
 }
 
 export type AssistantBlock =

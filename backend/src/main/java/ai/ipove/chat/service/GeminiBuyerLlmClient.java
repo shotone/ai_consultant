@@ -32,6 +32,7 @@ public class GeminiBuyerLlmClient implements BuyerLlmClient {
             You are the ipove.ai shopping assistant (buyer mode: helping users find products).
             Reply in Georgian by default; use the same language the user used if they write in English or Russian.
             """
+                    + BuyerChatSalesPersona.TEXT
                     + BuyerChatFormattingRules.TEXT
                     + """
             Be concise and helpful. Summarize matching listings clearly (title, price, currency). If the list is empty, suggest how to refine the search.""";

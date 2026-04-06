@@ -156,13 +156,6 @@ public class ChatService {
             return LlmReply.textOnly(SELLER_PLACEHOLDER_KA);
         }
         try {
-            if (geminiBuyerLlmClient.isEnabled()) {
-                return geminiBuyerLlmClient.completeBuyerTurn(session, history);
-            }
-        } catch (Exception e) {
-            log.warn("Gemini buyer LLM failed, trying next provider: {}", e.getMessage());
-        }
-        try {
             if (anthropicBuyerLlmClient.isEnabled()) {
                 return anthropicBuyerLlmClient.completeBuyerTurn(session, history);
             }
@@ -170,10 +163,17 @@ public class ChatService {
             String msg = e.getMessage() != null ? e.getMessage() : "";
             if (msg.contains("credit balance") || msg.contains("Plans & Billing")) {
                 log.warn(
-                        "Anthropic API: billing/credits issue (see console.anthropic.com → Plans & Billing). Using local stub LLM.");
+                        "Anthropic API: billing/credits issue (see console.anthropic.com → Plans & Billing). Trying Gemini.");
             } else {
-                log.warn("Anthropic buyer LLM failed, using stub: {}", e.getMessage());
+                log.warn("Anthropic buyer LLM failed, trying Gemini: {}", e.getMessage());
             }
+        }
+        try {
+            if (geminiBuyerLlmClient.isEnabled()) {
+                return geminiBuyerLlmClient.completeBuyerTurn(session, history);
+            }
+        } catch (Exception e) {
+            log.warn("Gemini buyer LLM failed, using stub: {}", e.getMessage());
         }
         return stubBuyerLlmClient.completeBuyerTurn(session, history);
     }

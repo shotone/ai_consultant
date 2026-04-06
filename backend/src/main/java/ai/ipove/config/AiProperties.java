@@ -57,8 +57,6 @@ public class AiProperties {
         if (StringUtils.hasText(modelOverride)) {
             this.googleAiModel = modelOverride.strip();
         }
-
-        this.googleAiApiKey = "AIzaSyBm2Z-YiC7Ese8og0hmuKgHMXrVKL74IlE";
     }
 
     private static String firstNonBlank(String a, String b) {
