@@ -21,6 +21,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -88,23 +89,7 @@ public class AnthropicBuyerLlmClient implements BuyerLlmClient {
             messages.add(msg);
         }
 
-        ArrayNode tools = objectMapper.createArrayNode();
-        ObjectNode tool = objectMapper.createObjectNode();
-        tool.put("name", "search_products");
-        tool.put(
-                "description",
-                "Search marketplace listings by keywords (brand, model, category, features). Use the user's language in the query.");
-        ObjectNode inputSchema = objectMapper.createObjectNode();
-        inputSchema.put("type", "object");
-        ObjectNode queryProp = objectMapper.createObjectNode();
-        queryProp.put("type", "string");
-        queryProp.put("description", "Search query in any language");
-        ObjectNode properties = objectMapper.createObjectNode();
-        properties.set("query", queryProp);
-        inputSchema.set("properties", properties);
-        inputSchema.set("required", objectMapper.createArrayNode().add("query"));
-        tool.set("input_schema", inputSchema);
-        tools.add(tool);
+        ArrayNode tools = buildToolDefinitions();
 
         ChatMessage lastUserMsg = historyIncludingLatestUser.getLast();
         BuyerRouteDecision routeDecision =
@@ -210,6 +195,10 @@ public class AnthropicBuyerLlmClient implements BuyerLlmClient {
                                 }
                             }
                         }
+                    } else if ("get_product_details".equals(name)) {
+                        resultJson = handleGetProductDetails(session.getTenantId(), input);
+                    } else if ("compare_products".equals(name)) {
+                        resultJson = handleCompareProducts(session.getTenantId(), input);
                     } else {
                         resultJson = "{\"error\":\"unknown tool\"}";
                     }
@@ -230,5 +219,96 @@ public class AnthropicBuyerLlmClient implements BuyerLlmClient {
         }
 
         return new LlmReply(finalText.toString().trim(), lastProducts);
+    }
+
+    private ArrayNode buildToolDefinitions() {
+        ArrayNode tools = objectMapper.createArrayNode();
+
+        // search_products
+        ObjectNode search = objectMapper.createObjectNode();
+        search.put("name", "search_products");
+        search.put("description",
+                "Search marketplace listings by keywords (brand, model, category, features). Use the user's language in the query.");
+        ObjectNode searchSchema = objectMapper.createObjectNode();
+        searchSchema.put("type", "object");
+        ObjectNode searchProps = objectMapper.createObjectNode();
+        ObjectNode queryProp = objectMapper.createObjectNode();
+        queryProp.put("type", "string");
+        queryProp.put("description", "Search query in any language");
+        searchProps.set("query", queryProp);
+        searchSchema.set("properties", searchProps);
+        searchSchema.set("required", objectMapper.createArrayNode().add("query"));
+        search.set("input_schema", searchSchema);
+        tools.add(search);
+
+        // get_product_details
+        ObjectNode details = objectMapper.createObjectNode();
+        details.put("name", "get_product_details");
+        details.put("description",
+                "Get full details for a specific product by its ID. Use when the user asks about a particular product from the search results.");
+        ObjectNode detailsSchema = objectMapper.createObjectNode();
+        detailsSchema.put("type", "object");
+        ObjectNode detailsProps = objectMapper.createObjectNode();
+        ObjectNode idProp = objectMapper.createObjectNode();
+        idProp.put("type", "string");
+        idProp.put("description", "Product UUID from search results");
+        detailsProps.set("product_id", idProp);
+        detailsSchema.set("properties", detailsProps);
+        detailsSchema.set("required", objectMapper.createArrayNode().add("product_id"));
+        details.set("input_schema", detailsSchema);
+        tools.add(details);
+
+        // compare_products
+        ObjectNode compare = objectMapper.createObjectNode();
+        compare.put("name", "compare_products");
+        compare.put("description",
+                "Compare 2-5 products side by side. Use when the user wants to compare options from search results.");
+        ObjectNode compareSchema = objectMapper.createObjectNode();
+        compareSchema.put("type", "object");
+        ObjectNode compareProps = objectMapper.createObjectNode();
+        ObjectNode idsProp = objectMapper.createObjectNode();
+        idsProp.put("type", "array");
+        ObjectNode itemsProp = objectMapper.createObjectNode();
+        itemsProp.put("type", "string");
+        idsProp.set("items", itemsProp);
+        idsProp.put("description", "List of product UUIDs to compare (2-5)");
+        compareProps.set("product_ids", idsProp);
+        compareSchema.set("properties", compareProps);
+        compareSchema.set("required", objectMapper.createArrayNode().add("product_ids"));
+        compare.set("input_schema", compareSchema);
+        tools.add(compare);
+
+        return tools;
+    }
+
+    private String handleGetProductDetails(UUID tenantId, JsonNode input) {
+        String productIdStr = input.path("product_id").asText("");
+        try {
+            UUID productId = UUID.fromString(productIdStr);
+            var detail = productSearchTool.getDetails(tenantId, productId);
+            if (detail.isPresent()) {
+                return objectMapper.writeValueAsString(detail.get());
+            }
+            return "{\"error\":\"product not found\"}";
+        } catch (Exception e) {
+            return "{\"error\":\"invalid product id\"}";
+        }
+    }
+
+    private String handleCompareProducts(UUID tenantId, JsonNode input) {
+        JsonNode idsNode = input.path("product_ids");
+        if (!idsNode.isArray() || idsNode.isEmpty()) {
+            return "{\"error\":\"product_ids must be a non-empty array\"}";
+        }
+        try {
+            List<UUID> ids = new ArrayList<>();
+            for (JsonNode idNode : idsNode) {
+                ids.add(UUID.fromString(idNode.asText()));
+            }
+            var details = productSearchTool.getMultipleDetails(tenantId, ids);
+            return objectMapper.writeValueAsString(details);
+        } catch (Exception e) {
+            return "{\"error\":\"invalid product ids\"}";
+        }
     }
 }
