@@ -97,6 +97,12 @@ public class ChatController {
                 emitter.send(SseEmitter.event()
                         .name("products")
                         .data(products != null ? objectMapper.writeValueAsString(products) : "[]"));
+                Object createdListing = meta != null ? meta.get("createdListing") : null;
+                if (createdListing != null) {
+                    emitter.send(SseEmitter.event()
+                            .name("createdListing")
+                            .data(objectMapper.writeValueAsString(createdListing)));
+                }
                 String text = result.assistantMessage().content();
                 for (String chunk : chunkForStream(text)) {
                     emitter.send(SseEmitter.event().name("token").data(chunk));

@@ -12,6 +12,7 @@ public class RabbitMQConfig {
     public static final String EVENTS_EXCHANGE = "ipove.events";
     public static final String NOTIFICATIONS_EXCHANGE = "ipove.notifications";
     public static final String CHAT_MESSAGE_ROUTING_KEY = "chat.message";
+    public static final String LISTING_SUBMITTED_ROUTING_KEY = "listing.submitted";
 
     @Bean
     public TopicExchange eventsExchange() {
@@ -31,6 +32,16 @@ public class RabbitMQConfig {
     @Bean
     public Binding chatMessageBinding(TopicExchange eventsExchange, Queue chatMessageQueue) {
         return BindingBuilder.bind(chatMessageQueue).to(eventsExchange).with(CHAT_MESSAGE_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue listingSubmittedQueue() {
+        return new Queue("listing.submitted", true);
+    }
+
+    @Bean
+    public Binding listingSubmittedBinding(TopicExchange eventsExchange, Queue listingSubmittedQueue) {
+        return BindingBuilder.bind(listingSubmittedQueue).to(eventsExchange).with(LISTING_SUBMITTED_ROUTING_KEY);
     }
 
     @Bean

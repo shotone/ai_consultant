@@ -311,32 +311,37 @@ public abstract class BaseEntity {
 > **მიზანი:** გამყიდველს შეუძლია პროდუქტის განთავსება ჩათში.
 
 ### Python AI Service
-- [ ] `seller_system_prompt` — ლისტინგ-ასისტენტის პრომფტი
-- [ ] `listing_agent` — ცალკე agent ლისტინგისთვის
-- [ ] Tool: `detect_category` — ტექსტიდან კატეგორიის დადგენა
-- [ ] Tool: `suggest_price` — ბაზრის ანალიზით ფასის რეკომენდაცია
-- [ ] Tool: `generate_description` — აღწერის გენერაცია
-- [ ] Tool: `create_listing` — ლისტინგის შექმნა
-- [ ] GPT-4o Vision: ფოტო ანალიზი (ბრენდი, მდგომარეობა, ვერიფიკაცია)
+- [ ] `seller_system_prompt` — ლისტინგ-ასისტენტის პრომფტი (Spring-ში განხორციელდა: `AnthropicSellerLlmClient`)
+- [ ] `listing_agent` — ცალკე agent (Spring-ში: `AnthropicSellerLlmClient` + `StubSellerLlmClient`)
+- [x] Tool: `detect_category` — Spring-ში `AnthropicSellerLlmClient.handleDetectCategory()`
+- [x] Tool: `suggest_price` — Spring-ში `AnthropicSellerLlmClient.handleSuggestPrice()`
+- [x] Tool: `generate_description` — Spring-ში `AnthropicSellerLlmClient.handleGenerateDescription()`
+- [x] Tool: `create_listing` — Spring-ში `AnthropicSellerLlmClient.handleCreateListing()` → `ProductService.create()`
+- [ ] GPT-4o Vision: ფოტო ანალიზი — Sprint 5-ში
 
 ### Backend
-- [ ] `ListingPipelineService` — ჩათიდან ლისტინგამდე ორკესტრაცია
-- [ ] Chat-to-Listing flow: conversational data → Product entity
-- [ ] Image analysis endpoint (proxy to GPT-4o Vision)
-- [ ] RabbitMQ: `listing.submitted` → post-processing queue
+- [x] `AnthropicSellerLlmClient` — ჩათიდან ლისტინგამდე ორკესტრაცია (Anthropic tool-calling)
+- [x] `StubSellerLlmClient` — stub (API key გარეშე)
+- [x] `SellerLlmClient` interface
+- [x] Chat-to-Listing flow: conversational data → Product entity (`ProductService.create()`)
+- [ ] Image analysis endpoint (proxy to GPT-4o Vision) — Sprint 5-ში
+- [x] RabbitMQ: `listing.submitted` queue + `ListingSubmittedEvent`
+- [x] `ChatService` — SELLER mode-ის ჩართვა (seller clients)
+- [x] `LlmReply` — `createdProductId` ველი
+- [x] `ChatController` SSE — `createdListing` event
 
 ### ტესტები
-- [ ] Listing agent unit tests (pytest)
-- [ ] Photo analysis mock tests
-- [ ] `ListingPipelineService` integration tests
+- [ ] `AnthropicSellerLlmClient` unit tests (WireMock)
+- [ ] `StubSellerLlmClient` unit tests
 - [ ] Full flow test: chat message → product created
 
 ### Frontend
-- [ ] "რას ყიდი?" flow UI (step-by-step chat)
-- [ ] ფოტოების ატვირთვა ჩათში
-- [ ] ლისტინგის preview ჩათში
-- [ ] "გამოქვეყნდა!" confirmation UI
-- [ ] Frontend tests
+- [x] "რას ყიდი?" flow — SELLER სესია ჩათით
+- [x] ფოტოების ატვირთვა ჩათში (📷 ღილაკი)
+- [x] ლისტინგის preview ჩათში (მწვანე ბარათი — "გამოქვეყნდა!")
+- [x] "გამოქვეყნდა!" confirmation UI + ბმული განცხადებაზე
+- [x] i18n — seller flow 3 ენაზე
+- [ ] Frontend unit tests (seller flow)
 
 **Sprint 4 DoD:**
 - გამყიდველი ჩათში ეუბნება რა აქვს → AI ეკითხება დეტალებს → ფოტოები → ლისტინგი იქმნება

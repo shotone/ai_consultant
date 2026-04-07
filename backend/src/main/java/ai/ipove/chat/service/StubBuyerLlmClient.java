@@ -37,7 +37,7 @@ public class StubBuyerLlmClient implements BuyerLlmClient {
                         + lines
                         + "\n\n"
                         + "დააჭირე ბარათს ქვემოთ დეტალების სანახავად, ან დამიწერე რა გინდა გავფილტრო (ფასი, მდგომარეობა, ბრენდი).";
-        return new LlmReply(text, products);
+        return LlmReply.withProducts(text, products);
     }
 
     private static String shorten(String s, int max) {

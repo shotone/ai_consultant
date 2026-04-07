@@ -218,7 +218,7 @@ public class AnthropicBuyerLlmClient implements BuyerLlmClient {
             break;
         }
 
-        return new LlmReply(finalText.toString().trim(), lastProducts);
+        return LlmReply.withProducts(finalText.toString().trim(), lastProducts);
     }
 
     private ArrayNode buildToolDefinitions() {

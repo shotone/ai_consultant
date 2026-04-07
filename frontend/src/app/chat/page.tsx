@@ -28,6 +28,7 @@ interface UiMessage {
   role: "user" | "assistant";
   content: string;
   products?: ChatProductPreview[];
+  createdListingId?: string;
 }
 
 interface ApiSession {
@@ -62,8 +63,10 @@ function ChatContent() {
   const [closeModalOpen, setCloseModalOpen] = useState(false);
   const [closeRating, setCloseRating] = useState<number | null>(null);
   const [closeError, setCloseError] = useState<string | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const adjustTextareaHeight = useCallback(() => {
     const el = inputRef.current;
@@ -245,6 +248,7 @@ function ChatContent() {
       let buf = "";
       let products: ChatProductPreview[] = [];
       let accText = "";
+      let createdListingId: string | undefined;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -257,6 +261,13 @@ function ChatContent() {
             try {
               const parsed = JSON.parse(data) as ChatProductPreview[];
               if (Array.isArray(parsed)) products = parsed;
+            } catch {
+              /* ignore */
+            }
+          } else if (event === "createdListing") {
+            try {
+              const id = JSON.parse(data) as string;
+              if (typeof id === "string") createdListingId = id;
             } catch {
               /* ignore */
             }
@@ -274,7 +285,9 @@ function ChatContent() {
 
       const finalText = stripLlmMarkdown(accText);
       setMessages((prev) =>
-        prev.map((m) => (m.id === assistantId ? { ...m, content: finalText, products } : m))
+        prev.map((m) =>
+          m.id === assistantId ? { ...m, content: finalText, products, createdListingId } : m
+        )
       );
       await loadSessions();
     } catch (e) {
@@ -282,6 +295,39 @@ function ChatContent() {
       setMessages((prev) => prev.filter((m) => m.id !== assistantId));
     } finally {
       setStreaming(false);
+    }
+  };
+
+  const uploadPhotos = async (productId: string, files: FileList) => {
+    if (!token || files.length === 0) return;
+    setPhotoUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadRes = await fetch(`${API_BASE}/images/upload`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+        if (!uploadRes.ok) continue;
+        const uploadJson = (await uploadRes.json()) as { data?: { url?: string } };
+        const imageUrl = uploadJson.data?.url;
+        if (!imageUrl) continue;
+        // Attach image to product
+        await fetch(`${API_BASE}/products/${productId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ images: [imageUrl] }),
+        });
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload error");
+    } finally {
+      setPhotoUploading(false);
     }
   };
 
@@ -491,6 +537,28 @@ function ChatContent() {
                   m.content
                 )}
               </div>
+              {m.role === "assistant" && m.createdListingId && (
+                <div className="mt-3 p-4 rounded-xl border border-green-500/40 bg-green-50 dark:bg-green-950/20">
+                  <p className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2">
+                    ✅ {t("chat.listing_created")}
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    <Link
+                      href={`/products/${m.createdListingId}`}
+                      className="text-xs px-3 py-1.5 bg-[var(--accent)] text-[var(--accent-text)] rounded-lg hover:bg-[var(--accent-hover)]"
+                    >
+                      {t("chat.listing_view")}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => photoInputRef.current?.click()}
+                      className="text-xs px-3 py-1.5 border border-[var(--card-border)] rounded-lg text-[var(--foreground)] hover:bg-[var(--muted-bg)]"
+                    >
+                      📷 {t("chat.listing_add_photos")}
+                    </button>
+                  </div>
+                </div>
+              )}
               {m.role === "assistant" && m.products && m.products.length > 0 && (
                 <div className="mt-3 space-y-2">
                   <p className="text-xs font-medium text-[var(--muted)]">{t("chat.suggested")}</p>
@@ -527,6 +595,35 @@ function ChatContent() {
         {error && <p className="shrink-0 text-red-500 text-sm mb-2">{error}</p>}
 
         <div className="shrink-0 flex gap-2 items-end">
+          {mode === "SELLER" && !sessionClosed && (
+            <>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={async (e) => {
+                  const latestListing = [...messages]
+                    .reverse()
+                    .find((m) => m.createdListingId)?.createdListingId;
+                  if (latestListing && e.target.files) {
+                    await uploadPhotos(latestListing, e.target.files);
+                    e.target.value = "";
+                  }
+                }}
+              />
+              <button
+                type="button"
+                disabled={photoUploading || streaming}
+                onClick={() => photoInputRef.current?.click()}
+                title={t("chat.listing_upload_photos")}
+                className="shrink-0 px-3 py-2 border border-[var(--card-border)] rounded-lg text-[var(--foreground)] hover:bg-[var(--muted-bg)] disabled:opacity-40 text-sm"
+              >
+                {photoUploading ? t("chat.listing_uploading") : "📷"}
+              </button>
+            </>
+          )}
           <textarea
             ref={inputRef}
             value={input}
@@ -538,9 +635,15 @@ function ChatContent() {
                 void sendStream();
               }
             }}
-            placeholder={sessionClosed ? t("chat.readonly") : t("chat.placeholder")}
+            placeholder={
+              sessionClosed
+                ? t("chat.readonly")
+                : mode === "SELLER"
+                ? t("chat.seller_placeholder")
+                : t("chat.placeholder")
+            }
             disabled={streaming || sessionClosed}
-            aria-label={t("chat.placeholder")}
+            aria-label={mode === "SELLER" ? t("chat.seller_placeholder") : t("chat.placeholder")}
             className="flex-1 min-h-[2.75rem] max-h-[200px] resize-none border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-lg px-3 py-2.5 outline-none focus:border-[var(--accent)] disabled:opacity-50 leading-snug"
           />
           <button

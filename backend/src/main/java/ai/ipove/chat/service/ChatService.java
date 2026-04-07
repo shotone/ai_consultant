@@ -3,6 +3,7 @@ package ai.ipove.chat.service;
 import ai.ipove.chat.dto.*;
 import ai.ipove.chat.entity.*;
 import ai.ipove.chat.event.ChatMessageEvent;
+import ai.ipove.chat.event.ListingSubmittedEvent;
 import ai.ipove.chat.repository.ChatMessageRepository;
 import ai.ipove.chat.repository.ChatSessionRepository;
 import ai.ipove.config.RabbitMQConfig;
@@ -26,15 +27,13 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private static final String SELLER_PLACEHOLDER_KA =
-            "გამყიდველის რეჟიმი (\"რას ყიდი?\") — პროდუქტის ჩათიდან განთავსება მალე დაემატება (Sprint 4). "
-                    + "ახლა შეგიძლია გამოიყენო გვერდი „პროდუქტის დამატება“.";
-
     private final ChatSessionRepository chatSessionRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final StubBuyerLlmClient stubBuyerLlmClient;
     private final GeminiBuyerLlmClient geminiBuyerLlmClient;
     private final AnthropicBuyerLlmClient anthropicBuyerLlmClient;
+    private final AnthropicSellerLlmClient anthropicSellerLlmClient;
+    private final StubSellerLlmClient stubSellerLlmClient;
     private final RabbitTemplate rabbitTemplate;
 
     public record SendMessageResult(ChatMessageResponse userMessage, ChatMessageResponse assistantMessage) {}
@@ -99,13 +98,17 @@ public class ChatService {
         publishChatEvent(session, user, request.getContent());
 
         List<ChatMessage> history = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
-        LlmReply reply = generateReply(session, history);
+        LlmReply reply = generateReply(user, session, history);
 
         Map<String, Object> metadata = new LinkedHashMap<>();
         if (!reply.suggestedProducts().isEmpty()) {
             metadata.put(
                     "products",
                     reply.suggestedProducts().stream().map(this::snippetToMap).toList());
+        }
+        if (reply.createdProductId() != null) {
+            metadata.put("createdListing", reply.createdProductId().toString());
+            publishListingSubmittedEvent(session, user, reply.createdProductId());
         }
 
         String assistantPlain = AssistantTextSanitizer.toPlainAssistantText(reply.text());
@@ -135,6 +138,17 @@ public class ChatService {
         return m;
     }
 
+    private void publishListingSubmittedEvent(ChatSession session, User user, UUID productId) {
+        var event = new ListingSubmittedEvent(
+                productId, user.getId(), session.getTenantId(), session.getId(), Instant.now());
+        try {
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EVENTS_EXCHANGE, RabbitMQConfig.LISTING_SUBMITTED_ROUTING_KEY, event);
+        } catch (Exception e) {
+            log.warn("Failed to publish listing.submitted event: {}", e.getMessage());
+        }
+    }
+
     private void publishChatEvent(ChatSession session, User user, String content) {
         String preview = content.length() > 200 ? content.substring(0, 200) : content;
         var event = new ChatMessageEvent(
@@ -151,10 +165,25 @@ public class ChatService {
         }
     }
 
-    private LlmReply generateReply(ChatSession session, List<ChatMessage> history) {
+    private LlmReply generateReply(User user, ChatSession session, List<ChatMessage> history) {
         if (session.getSessionMode() == ChatSessionMode.SELLER) {
-            return LlmReply.textOnly(SELLER_PLACEHOLDER_KA);
+            return generateSellerReply(user, session, history);
         }
+        return generateBuyerReply(session, history);
+    }
+
+    private LlmReply generateSellerReply(User user, ChatSession session, List<ChatMessage> history) {
+        try {
+            if (anthropicSellerLlmClient.isEnabled()) {
+                return anthropicSellerLlmClient.completeSellerTurn(user, session, history);
+            }
+        } catch (Exception e) {
+            log.warn("Anthropic seller LLM failed, using stub: {}", e.getMessage());
+        }
+        return stubSellerLlmClient.completeSellerTurn(user, session, history);
+    }
+
+    private LlmReply generateBuyerReply(ChatSession session, List<ChatMessage> history) {
         try {
             if (anthropicBuyerLlmClient.isEnabled()) {
                 return anthropicBuyerLlmClient.completeBuyerTurn(session, history);

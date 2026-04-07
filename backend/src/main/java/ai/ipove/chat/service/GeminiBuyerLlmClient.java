@@ -163,7 +163,7 @@ public class GeminiBuyerLlmClient implements BuyerLlmClient {
                 text = "აქ არის რამდენიმე ვარიანტი — იხილე პროდუქტის ბარათები ქვემოთ.";
             }
         }
-        return new LlmReply(text.trim(), products);
+        return LlmReply.withProducts(text.trim(), products);
     }
 
     private String extractText(JsonNode response) {
